@@ -5,7 +5,7 @@ import re
 import os
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'local-dev-key-change-in-production')
+app.secret_key = os.environ.get('SECRET_KEY')
 
 # ── Database configuration ──
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
