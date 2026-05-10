@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import re
 import os
 import resend
@@ -20,6 +21,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# ── Mountain Time helper ──
+def mountain_time():
+    return datetime.now(ZoneInfo('America/Denver'))
+
 # ── Models (database tables) ──
 
 class Appointment(db.Model):
@@ -34,7 +39,7 @@ class Appointment(db.Model):
     time       = db.Column(db.String(20),  nullable=False)
     technician = db.Column(db.String(100), nullable=True)
     details    = db.Column(db.Text,        nullable=True)
-    created_at = db.Column(db.DateTime,    default=datetime.utcnow)
+    created_at = db.Column(db.DateTime,    default=mountain_time)
 
     def __repr__(self):
         return f'<Appointment {self.name} on {self.date} at {self.time}>'
@@ -46,7 +51,7 @@ class ContactMessage(db.Model):
     email      = db.Column(db.String(120), nullable=False)
     phone      = db.Column(db.String(20),  nullable=True)
     message    = db.Column(db.Text,        nullable=False)
-    created_at = db.Column(db.DateTime,    default=datetime.utcnow)
+    created_at = db.Column(db.DateTime,    default=mountain_time)
 
     def __repr__(self):
         return f'<Message from {self.name}>'
@@ -212,13 +217,15 @@ gallery = [
 # ── Helpers ──
 
 def normalize_phone(raw):
+    if not raw or not raw.strip():
+        return None
     digits = re.sub(r'\D', '', raw)
     if len(digits) == 10:
         return f'({digits[:3]}) {digits[3:6]}-{digits[6:]}'
     elif len(digits) == 11 and digits[0] == '1':
         return f'({digits[1:4]}) {digits[4:7]}-{digits[7:]}'
     else:
-        return raw.strip()
+        return None  # invalid — not 10 digits
     
 def send_notification(subject, body):
     try:
@@ -268,6 +275,17 @@ def about():
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     if request.method == 'POST':
+        raw_phone = request.form['phone'].strip()
+
+        # Only validate if they entered something
+        if raw_phone:
+            phone = normalize_phone(raw_phone)
+            if phone is None:
+                flash('Please enter a valid 10-digit US phone number.')
+                return redirect(url_for('contact'))
+        else:
+            phone = None
+
         msg = ContactMessage(
             name    = request.form['customer_name'],
             email   = request.form['email'],
@@ -282,13 +300,13 @@ def contact():
             body    = f"""New contact message received on the Pretty Nail Spa website.
 
 Name:    {msg.name}
-Phone:   {msg.phone}
+Phone:   {msg.phone or 'Not provided'}
 Email:   {msg.email}
 
 Message:
 {msg.message}
 
-Submitted: {msg.created_at.strftime('%b %d, %Y at %I:%M %p')}
+Submitted: {msg.created_at.strftime('%b %d, %Y at %I:%M %p')} MT
 """
         )
 
@@ -306,6 +324,10 @@ def booking():
             return redirect(url_for('booking'))
 
         phone = normalize_phone(request.form['phone'])
+
+        if phone is None:
+            flash('Please enter a valid 10-digit US phone number.')
+            return redirect(url_for('booking'))
 
         appt = Appointment(
             name            = request.form['customer_name'],
@@ -343,12 +365,12 @@ Estimated Total: {appt.estimated_total or 'N/A'}
 Technician:      {appt.technician or 'No preference'}
 Details:         {appt.details or 'None'}
 
-Submitted: {appt.created_at.strftime('%b %d, %Y at %I:%M %p')}
+Submitted: {appt.created_at.strftime('%b %d, %Y at %I:%M %p')} MT
 """
         )
 
         party_note_flash = f' for {appt.party_size} guests' if appt.party_size > 1 else ''
-        flash(f"Thank you {appt.name}! Your appointment{party_note_flash} on {appt.date} at {appt.time} has been received. We will reach out to you to confirm the rest of this appointment. Estimated total: {appt.estimated_total}.")
+        flash(f"Thank you {appt.name}! Your appointment{party_note_flash} on {appt.date} at {appt.time} has been received. We will reach out to you to confirm. Estimated total: {appt.estimated_total}.")
         return redirect(url_for('booking'))
 
     return render_template('booking.html', services=services)
@@ -413,7 +435,7 @@ def delete_message(id):
 def admin_cleanup():
     from datetime import timedelta
     days   = int(request.form.get('days', 30))
-    cutoff = datetime.utcnow() - timedelta(days=days)
+    cutoff = datetime.now(ZoneInfo('America/Denver')) - timedelta(days=days)
 
     old_appts = Appointment.query.filter(Appointment.created_at < cutoff).all()
     old_msgs  = ContactMessage.query.filter(ContactMessage.created_at < cutoff).all()

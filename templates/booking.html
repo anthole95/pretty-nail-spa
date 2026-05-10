@@ -35,7 +35,11 @@
       <div class="form-group">
         <label for="phone">Phone Number</label>
         <input type="tel" id="phone" name="phone"
-               placeholder="(555) 123-4567" required>
+               placeholder="(555) 123-4567" required
+               minlength="14" maxlength="14">
+        <span id="phone-error" class="field-error" style="display:none;">
+          Please enter a complete 10-digit US phone number.
+        </span>
       </div>
 
       <!-- Party size -->
@@ -137,25 +141,35 @@
 
 {% block scripts %}
 <script>
-  // ── Phone number live formatting ──
   const phoneInput = document.getElementById('phone');
+  const phoneError = document.getElementById('phone-error');
 
+  // ── Live formatting ──
   phoneInput.addEventListener('input', function () {
     let digits = this.value.replace(/\D/g, '');
     if (digits.length > 10) digits = digits.slice(0, 10);
 
     let formatted = '';
-    if (digits.length === 0) {
-      formatted = '';
-    } else if (digits.length <= 3) {
-      formatted = `(${digits}`;
-    } else if (digits.length <= 6) {
-      formatted = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
-    } else {
-      formatted = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
-    }
+    if (digits.length === 0)       formatted = '';
+    else if (digits.length <= 3)   formatted = `(${digits}`;
+    else if (digits.length <= 6)   formatted = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+    else                           formatted = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
 
     this.value = formatted;
+    this.setCustomValidity('');
+    phoneError.style.display = 'none';
+  });
+
+  // ── Validate on blur ──
+  phoneInput.addEventListener('blur', function () {
+    const digits = this.value.replace(/\D/g, '');
+    if (digits.length > 0 && digits.length < 10) {
+      this.setCustomValidity('Please enter a complete 10-digit US phone number.');
+      phoneError.style.display = 'block';
+    } else {
+      this.setCustomValidity('');
+      phoneError.style.display = 'none';
+    }
   });
 
   // ── Price calculation ──
@@ -205,7 +219,6 @@
   const timeSelect = document.getElementById('time');
   const closedMsg  = document.getElementById('closed-msg');
 
-  // Set minimum date to today
   const today = new Date();
   const yyyy  = today.getFullYear();
   const mm    = String(today.getMonth() + 1).padStart(2, '0');
@@ -224,7 +237,6 @@
     let h            = openH;
     let m            = openM;
     const closeTotal = closeH * 60 + closeM;
-
     while (true) {
       const currentTotal = h * 60 + m;
       if (currentTotal + 30 > closeTotal) break;
@@ -243,9 +255,7 @@
       sel.getMonth()    === now.getMonth()    &&
       sel.getDate()     === now.getDate()
     );
-
     if (!isToday) return slots;
-
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
     return slots.filter(s => (s.h * 60 + s.m) > nowMinutes + 30);
   }
