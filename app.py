@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail, Message
 from datetime import datetime
 import re
 import os
@@ -48,6 +49,15 @@ class ContactMessage(db.Model):
 
     def __repr__(self):
         return f'<Message from {self.name}>'
+    
+# ── Email configuration ──
+app.config['MAIL_SERVER']         = 'smtp.gmail.com'
+app.config['MAIL_PORT']           = 587
+app.config['MAIL_USE_TLS']        = True
+app.config['MAIL_USERNAME']       = os.environ.get('MAIL_EMAIL')
+app.config['MAIL_PASSWORD']       = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_EMAIL')
+mail = Mail(app)
 
 # ── Services data ── 
 # Edit this list to update pricing of services on website
@@ -218,6 +228,16 @@ def normalize_phone(raw):
     else:
         return raw.strip()
     
+def send_notification(subject, body):
+    try:
+        notify_email = os.environ.get('NOTIFY_EMAIL')
+        if notify_email:
+            msg = Message(subject, recipients=[notify_email])
+            msg.body = body
+            mail.send(msg)
+    except Exception as e:
+        print(f'Email notification failed: {e}')
+    
 def admin_required(f):
     from functools import wraps
     @wraps(f)
@@ -258,6 +278,22 @@ def contact():
         )
         db.session.add(msg)
         db.session.commit()
+
+        send_notification(
+            subject = f'New Contact Message — {msg.name}',
+            body    = f"""New contact message received on the Pretty Nail Spa website.
+
+Name:    {msg.name}
+Phone:   {msg.phone}
+Email:   {msg.email}
+
+Message:
+{msg.message}
+
+Submitted: {msg.created_at.strftime('%b %d, %Y at %I:%M %p')}
+"""
+        )
+
         flash(f"Thank you {msg.name}! We'll be in touch soon.")
         return redirect(url_for('contact'))
     return render_template('contact.html')
@@ -270,7 +306,7 @@ def booking():
         if not selected_services:
             flash('Please select at least one service.')
             return redirect(url_for('booking'))
-        
+
         phone = normalize_phone(request.form['phone'])
 
         appt = Appointment(
@@ -288,8 +324,33 @@ def booking():
         db.session.add(appt)
         db.session.commit()
 
-        party_note = f' for {appt.party_size} guests' if appt.party_size > 1 else ''
-        flash(f"Thank you {appt.name}! Your appointment{party_note} on {appt.date} at {appt.time} has been submitted. We will reach out to confirm your appointment. Estimated total: {appt.estimated_total}.")
+        party_note = f'{appt.party_size} guests' if appt.party_size > 1 else '1 guest'
+
+        send_notification(
+            subject = f'New Booking Request — {appt.name}',
+            body    = f"""New appointment request received on the Pretty Nail Spa website.
+
+Name:       {appt.name}
+Phone:      {appt.phone}
+Email:      {appt.email}
+
+Date:       {appt.date}
+Time:       {appt.time}
+Party Size: {party_note}
+
+Services:
+{appt.services}
+
+Estimated Total: {appt.estimated_total or 'N/A'}
+Technician:      {appt.technician or 'No preference'}
+Details:         {appt.details or 'None'}
+
+Submitted: {appt.created_at.strftime('%b %d, %Y at %I:%M %p')}
+"""
+        )
+
+        party_note_flash = f' for {appt.party_size} guests' if appt.party_size > 1 else ''
+        flash(f"Thank you {appt.name}! Your appointment{party_note_flash} on {appt.date} at {appt.time} has been received. We will reach out to you to confirm the rest of this appointment. Estimated total: {appt.estimated_total}.")
         return redirect(url_for('booking'))
 
     return render_template('booking.html', services=services)
