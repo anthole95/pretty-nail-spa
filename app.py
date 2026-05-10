@@ -279,7 +279,7 @@ def booking():
         db.session.commit()
 
         party_note = f' for {appt.party_size} guests' if appt.party_size > 1 else ''
-        flash(f"Thank you {appt.name}! Your appointment{party_note} on {appt.date} at {appt.time} is confirmed. Estimated total: {appt.estimated_total}.")
+        flash(f"Thank you {appt.name}! Your appointment{party_note} on {appt.date} at {appt.time} has been submitted. We will reach out to confirm your appointment. Estimated total: {appt.estimated_total}.")
         return redirect(url_for('booking'))
 
     return render_template('booking.html', services=services)
