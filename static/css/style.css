@@ -954,3 +954,71 @@ footer {
     font-size: 14px;
     padding: 20px 0;
 }
+
+/* ── Admin cleanup bar ── */
+.cleanup-bar {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-bottom: 36px;
+    border: 1px solid #eee;
+}
+
+.cleanup-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.cleanup-label {
+    font-size: 13px;
+    color: var(--gray);
+}
+
+.cleanup-select {
+    padding: 7px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 13px;
+    background: var(--background);
+    color: var(--dark);
+    cursor: pointer;
+}
+
+.btn-cleanup {
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-cleanup:hover {
+    background: var(--primary-dark);
+}
+
+/* ── Admin delete button ── */
+.td-action {
+    white-space: nowrap;
+}
+
+.btn-delete {
+    font-size: 12px;
+    color: #b04040;
+    text-decoration: none;
+    border: 1px solid #e8a0a0;
+    padding: 4px 10px;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+.btn-delete:hover {
+    background: #b04040;
+    color: var(--white);
+}

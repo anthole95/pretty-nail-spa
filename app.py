@@ -329,6 +329,48 @@ def admin_logout():
     flash('You have been logged out.')
     return redirect(url_for('admin_login'))
 
+@app.route('/admin/delete/appointment/<int:id>')
+@admin_required
+def delete_appointment(id):
+    appt = Appointment.query.get_or_404(id)
+    db.session.delete(appt)
+    db.session.commit()
+    flash(f'Appointment for {appt.name} deleted.')
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/delete/message/<int:id>')
+@admin_required
+def delete_message(id):
+    msg = ContactMessage.query.get_or_404(id)
+    db.session.delete(msg)
+    db.session.commit()
+    flash(f'Message from {msg.name} deleted.')
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/cleanup', methods=['POST'])
+@admin_required
+def admin_cleanup():
+    from datetime import timedelta
+    days   = int(request.form.get('days', 30))
+    cutoff = datetime.utcnow() - timedelta(days=days)
+
+    old_appts = Appointment.query.filter(Appointment.created_at < cutoff).all()
+    old_msgs  = ContactMessage.query.filter(ContactMessage.created_at < cutoff).all()
+
+    appt_count = len(old_appts)
+    msg_count  = len(old_msgs)
+
+    for a in old_appts:
+        db.session.delete(a)
+    for m in old_msgs:
+        db.session.delete(m)
+
+    db.session.commit()
+    flash(f'Cleanup complete — {appt_count} appointment(s) and {msg_count} message(s) older than {days} days removed.')
+    return redirect(url_for('admin_dashboard'))
+
 # Create tables on startup
 with app.app_context():
     db.create_all()

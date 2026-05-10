@@ -9,6 +9,29 @@
     <a href="/admin/logout" class="btn-logout">Log Out</a>
   </div>
 
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="flash-success">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- ── Bulk cleanup ── -->
+  <div class="cleanup-bar">
+    <form action="/admin/cleanup" method="POST" class="cleanup-form"
+          onsubmit="return confirm('Delete all records older than the selected number of days? This cannot be undone.')">
+      <span class="cleanup-label">Bulk cleanup — delete records older than</span>
+      <select name="days" class="cleanup-select">
+        <option value="30">30 days</option>
+        <option value="60">60 days</option>
+        <option value="90" selected>90 days</option>
+        <option value="180">180 days</option>
+      </select>
+      <button type="submit" class="btn-cleanup">Run Cleanup</button>
+    </form>
+  </div>
+
   <!-- ── Appointments ── -->
   <div class="admin-section">
     <div class="admin-section-header">
@@ -32,6 +55,7 @@
               <th>Time</th>
               <th>Technician</th>
               <th>Details</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -48,6 +72,11 @@
                 <td class="td-time">{{ appt.time }}</td>
                 <td class="td-tech">{{ appt.technician or '—' }}</td>
                 <td class="td-details">{{ appt.details or '—' }}</td>
+                <td class="td-action">
+                  <a href="/admin/delete/appointment/{{ appt.id }}"
+                     class="btn-delete"
+                     onclick="return confirm('Delete this appointment?')">Delete</a>
+                </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -75,6 +104,7 @@
               <th>Phone</th>
               <th>Email</th>
               <th>Message</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -85,6 +115,11 @@
                 <td class="td-phone">{{ msg.phone or '—' }}</td>
                 <td class="td-email">{{ msg.email }}</td>
                 <td class="td-message">{{ msg.message }}</td>
+                <td class="td-action">
+                  <a href="/admin/delete/message/{{ msg.id }}"
+                     class="btn-delete"
+                     onclick="return confirm('Delete this message?')">Delete</a>
+                </td>
               </tr>
             {% endfor %}
           </tbody>
