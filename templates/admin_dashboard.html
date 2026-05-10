@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard — Pretty Nail Spa{% endblock %}
+
+{% block content %}
+
+  <div class="admin-header">
+    <h2>Admin Dashboard</h2>
+    <a href="/admin/logout" class="btn-logout">Log Out</a>
+  </div>
+
+  <!-- ── Appointments ── -->
+  <div class="admin-section">
+    <div class="admin-section-header">
+      <h3>Appointments</h3>
+      <span class="admin-count">{{ appointments|length }} total</span>
+    </div>
+
+    {% if appointments %}
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Submitted</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Services</th>
+              <th>Total</th>
+              <th>Party</th>
+              <th>Appt Date</th>
+              <th>Time</th>
+              <th>Technician</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for appt in appointments %}
+              <tr>
+                <td class="td-date">{{ appt.created_at.strftime('%b %d, %Y') }}</td>
+                <td class="td-name">{{ appt.name }}</td>
+                <td class="td-phone">{{ appt.phone }}</td>
+                <td class="td-email">{{ appt.email }}</td>
+                <td class="td-services">{{ appt.services }}</td>
+                <td class="td-total">{{ appt.estimated_total or '—' }}</td>
+                <td class="td-party">{{ appt.party_size }}</td>
+                <td class="td-date">{{ appt.date }}</td>
+                <td class="td-time">{{ appt.time }}</td>
+                <td class="td-tech">{{ appt.technician or '—' }}</td>
+                <td class="td-details">{{ appt.details or '—' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="admin-empty">No appointments yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- ── Contact Messages ── -->
+  <div class="admin-section">
+    <div class="admin-section-header">
+      <h3>Contact Messages</h3>
+      <span class="admin-count">{{ messages|length }} total</span>
+    </div>
+
+    {% if messages %}
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Submitted</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for msg in messages %}
+              <tr>
+                <td class="td-date">{{ msg.created_at.strftime('%b %d, %Y') }}</td>
+                <td class="td-name">{{ msg.name }}</td>
+                <td class="td-phone">{{ msg.phone or '—' }}</td>
+                <td class="td-email">{{ msg.email }}</td>
+                <td class="td-message">{{ msg.message }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="admin-empty">No messages yet.</p>
+    {% endif %}
+  </div>
+
+{% endblock %}

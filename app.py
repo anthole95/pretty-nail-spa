@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import re
@@ -218,6 +218,16 @@ def normalize_phone(raw):
     else:
         return raw.strip()
     
+def admin_required(f):
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            flash('Please log in to access the admin area.')
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated
+    
 # ── Routes ──
 
 @app.route('/')
@@ -283,6 +293,41 @@ def booking():
         return redirect(url_for('booking'))
 
     return render_template('booking.html', services=services)
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if session.get('admin_logged_in'):
+        return redirect(url_for('admin_dashboard'))
+
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        admin_user = os.environ.get('ADMIN_USERNAME', 'admin')
+        admin_pass = os.environ.get('ADMIN_PASSWORD', 'changeme')
+
+        if username == admin_user and password == admin_pass:
+            session['admin_logged_in'] = True
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Incorrect username or password.')
+
+    return render_template('admin_login.html')
+
+@app.route('/admin')
+@admin_required
+def admin_dashboard():
+    appointments = Appointment.query.order_by(Appointment.created_at.desc()).all()
+    messages     = ContactMessage.query.order_by(ContactMessage.created_at.desc()).all()
+    return render_template('admin_dashboard.html',
+                           appointments=appointments,
+                           messages=messages)
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    flash('You have been logged out.')
+    return redirect(url_for('admin_login'))
 
 # Create tables on startup
 with app.app_context():
