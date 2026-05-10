@@ -1,12 +1,13 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail, Message
 from datetime import datetime
 import re
 import os
+import resend
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
+resend.api_key = os.environ.get('RESEND_API_KEY')
 
 # ── Database configuration ──
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
@@ -50,16 +51,6 @@ class ContactMessage(db.Model):
     def __repr__(self):
         return f'<Message from {self.name}>'
     
-# ── Email configuration ──
-app.config['MAIL_SERVER']         = 'smtp.gmail.com'
-app.config['MAIL_PORT']           = 465
-app.config['MAIL_USE_TLS']        = False
-app.config['MAIL_USE_SSL']        = True
-app.config['MAIL_USERNAME']       = os.environ.get('MAIL_EMAIL')
-app.config['MAIL_PASSWORD']       = os.environ.get('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_EMAIL')
-mail = Mail(app)
-
 # ── Services data ── 
 # Edit this list to update pricing of services on website
 # TO-DO: Add more services from other menu
@@ -233,9 +224,15 @@ def send_notification(subject, body):
     try:
         notify_email = os.environ.get('NOTIFY_EMAIL')
         if notify_email:
-            msg = Message(subject, recipients=[notify_email])
-            msg.body = body
-            mail.send(msg)
+            resend.Emails.send({
+                'from': 'Pretty Nail Spa <onboarding@resend.dev>',
+                'to': notify_email,
+                'subject': subject,
+                'text': body
+            })
+            print(f'Email notification sent to {notify_email}')
+        else:
+            print('NOTIFY_EMAIL not set — skipping notification')
     except Exception as e:
         print(f'Email notification failed: {e}')
     
