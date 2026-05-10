@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Services — Pretty Nail Spa{% endblock %}
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>Price List</h2>
+    <p>All prices are starting prices. Final pricing may vary based on nail length and condition.</p>
+    <p class="pedicure-note">✦ Pedicure services: Add $15 for Gel Color · Add $20 for French Tip</p>
+  </div>
+
+  <div class="services-sections">
+    {% for section in services %}
+      <div class="service-section">
+        <h3 class="section-title">{{ section.category }}</h3>
+        <div class="section-items">
+          {% for item in section.services %}
+            <div class="service-row">
+              <span class="service-name">{{ item.name }}</span>
+              <span class="service-divider"></span>
+              <span class="service-price">${{ item.price }}{{ item.price_note }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <p class="services-note">✦ Book an appointment and let us take care of the rest.</p>
+  <a href="/booking" class="btn">Book an appointment</a>
+
+{% endblock %}

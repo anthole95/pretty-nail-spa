@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+
+{% block title %}Book an Appointment — Pretty Nail Spa{% endblock %}
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>Book an Appointment</h2>
+    <p>We do our best to accommodate walk-in appointments, however, booking ahead of time is the best way to ensure you get the service you want. Fill out the form below and we'll confirm your appointment shortly.</p>
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="flash-success">✓ {{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="form-centered">
+    <form action="/booking" method="POST" class="contact-form">
+
+      <div class="form-group">
+        <label for="customer_name">Full Name</label>
+        <input type="text" id="customer_name" name="customer_name"
+               placeholder="Jane Smith" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email"
+               placeholder="jane@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone"
+               placeholder="(555) 123-4567" required>
+      </div>
+
+      <!-- Party size -->
+      <div class="form-group">
+        <label>Appointment For</label>
+        <div class="party-options">
+          <label class="party-option">
+            <input type="radio" name="party_size" value="1" checked>
+            <span>Just me</span>
+          </label>
+          <label class="party-option">
+            <input type="radio" name="party_size" value="2">
+            <span>2 people</span>
+          </label>
+          <label class="party-option">
+            <input type="radio" name="party_size" value="3">
+            <span>3 people</span>
+          </label>
+          <label class="party-option">
+            <input type="radio" name="party_size" value="4">
+            <span>4+ people</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Services by category -->
+      <div class="form-group">
+        <label>Services <span class="optional">(select all that apply)</span></label>
+        <div class="services-checklist">
+          {% for section in services %}
+            <div class="checklist-section">
+              <p class="checklist-category">{{ section.category }}</p>
+              {% for item in section.services %}
+                <label class="checkbox-option">
+                  <input type="checkbox" name="services"
+                         value="{{ item.name }}"
+                         data-price="{{ item.price }}"
+                         data-modifier="{{ item.price_note }}">
+                  <span class="checkbox-label">
+                    <span>{{ item.name }}</span>
+                    <span class="checkbox-price">${{ item.price }}{{ item.price_note }}</span>
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Running total display -->
+      <div class="total-summary" id="total-summary" style="display:none;">
+        <div class="total-row">
+          <span class="total-label">Estimated Starting Total</span>
+          <span class="total-amount" id="total-display">$0</span>
+        </div>
+        <p class="total-note">Final price may vary. Services marked with + are starting prices.</p>
+      </div>
+
+      <!-- Hidden input carries total to Flask -->
+      <input type="hidden" name="estimated_total" id="estimated_total" value="">
+
+      <!-- Date & Time -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="date">Preferred Date</label>
+          <input type="date" id="date" name="date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="time">Preferred Time</label>
+          <select id="time" name="time" required>
+            <option value="" disabled selected>Select a date first</option>
+          </select>
+          <span id="closed-msg" class="closed-message" style="display:none;">
+            ✕ We are closed on Mondays. Please select another day.
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="technician">Preferred Technician <span class="optional">(optional)</span></label>
+        <input type="text" id="technician" name="technician"
+               placeholder="Enter a name if you have a preference...">
+      </div>
+
+      <div class="form-group">
+        <label for="details">Additional Details <span class="optional">(optional)</span></label>
+        <textarea id="details" name="details" rows="3"
+                  placeholder="Anything else you'd like us to know about your appointment..."></textarea>
+      </div>
+
+      <button type="submit" class="btn">Request Appointment</button>
+
+    </form>
+  </div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+  // ── Phone number live formatting ──
+  const phoneInput = document.getElementById('phone');
+
+  phoneInput.addEventListener('input', function () {
+    let digits = this.value.replace(/\D/g, '');
+    if (digits.length > 10) digits = digits.slice(0, 10);
+
+    let formatted = '';
+    if (digits.length === 0) {
+      formatted = '';
+    } else if (digits.length <= 3) {
+      formatted = `(${digits}`;
+    } else if (digits.length <= 6) {
+      formatted = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+    } else {
+      formatted = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+    }
+
+    this.value = formatted;
+  });
+
+  // ── Price calculation ──
+  const checkboxes   = document.querySelectorAll('input[type="checkbox"][data-price]');
+  const totalSummary = document.getElementById('total-summary');
+  const totalDisplay = document.getElementById('total-display');
+  const totalInput   = document.getElementById('estimated_total');
+
+  function updateTotal() {
+    let total      = 0;
+    let hasPlus    = false;
+    let anyChecked = false;
+
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        anyChecked = true;
+        total += parseInt(cb.dataset.price, 10);
+        if (cb.dataset.modifier === '+') hasPlus = true;
+      }
+    });
+
+    if (anyChecked) {
+      const label              = hasPlus ? `$${total}+` : `$${total}`;
+      totalDisplay.textContent = label;
+      totalInput.value         = label;
+      totalSummary.style.display = 'block';
+    } else {
+      totalSummary.style.display = 'none';
+      totalInput.value           = '';
+    }
+  }
+
+  checkboxes.forEach(cb => cb.addEventListener('change', updateTotal));
+
+  // ── Hours of operation ──
+  const hours = {
+    0: [11,  0, 16, 30],  // Sunday:    11:00 AM – 4:30 PM
+    1: null,               // Monday:    Closed
+    2: [10,  0, 19,  0],  // Tuesday:   10:00 AM – 7:00 PM
+    3: [10,  0, 19,  0],  // Wednesday: 10:00 AM – 7:00 PM
+    4: [10,  0, 19,  0],  // Thursday:  10:00 AM – 7:00 PM
+    5: [10,  0, 19,  0],  // Friday:    10:00 AM – 7:00 PM
+    6: [10,  0, 18,  0],  // Saturday:  10:00 AM – 6:00 PM
+  };
+
+  const dateInput  = document.getElementById('date');
+  const timeSelect = document.getElementById('time');
+  const closedMsg  = document.getElementById('closed-msg');
+
+  // Set minimum date to today
+  const today = new Date();
+  const yyyy  = today.getFullYear();
+  const mm    = String(today.getMonth() + 1).padStart(2, '0');
+  const dd    = String(today.getDate()).padStart(2, '0');
+  dateInput.min = `${yyyy}-${mm}-${dd}`;
+
+  function formatTime(h, m) {
+    const period = h >= 12 ? 'PM' : 'AM';
+    const hour   = h > 12 ? h - 12 : h === 0 ? 12 : h;
+    const minute = String(m).padStart(2, '0');
+    return `${hour}:${minute} ${period}`;
+  }
+
+  function generateSlots(openH, openM, closeH, closeM) {
+    const slots      = [];
+    let h            = openH;
+    let m            = openM;
+    const closeTotal = closeH * 60 + closeM;
+
+    while (true) {
+      const currentTotal = h * 60 + m;
+      if (currentTotal + 30 > closeTotal) break;
+      slots.push({ h, m, label: formatTime(h, m) });
+      m += 30;
+      if (m >= 60) { h += 1; m = 0; }
+    }
+    return slots;
+  }
+
+  function filterPastSlots(slots, selectedDateStr) {
+    const now     = new Date();
+    const sel     = new Date(selectedDateStr + 'T00:00:00');
+    const isToday = (
+      sel.getFullYear() === now.getFullYear() &&
+      sel.getMonth()    === now.getMonth()    &&
+      sel.getDate()     === now.getDate()
+    );
+
+    if (!isToday) return slots;
+
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    return slots.filter(s => (s.h * 60 + s.m) > nowMinutes + 30);
+  }
+
+  dateInput.addEventListener('change', function () {
+    const selectedStr = this.value;
+    const parts       = selectedStr.split('-');
+    const selDate     = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+    const day         = selDate.getUTCDay();
+    const dayHours    = hours[day];
+
+    timeSelect.innerHTML    = '';
+    closedMsg.style.display = 'none';
+    timeSelect.disabled     = false;
+
+    if (dayHours === null) {
+      timeSelect.innerHTML    = '<option value="" disabled selected>Closed this day</option>';
+      timeSelect.disabled     = true;
+      closedMsg.style.display = 'block';
+      return;
+    }
+
+    const [openH, openM, closeH, closeM] = dayHours;
+    let slots = generateSlots(openH, openM, closeH, closeM);
+    slots     = filterPastSlots(slots, selectedStr);
+
+    if (slots.length === 0) {
+      timeSelect.innerHTML = '<option value="" disabled selected>No times available</option>';
+      timeSelect.disabled  = true;
+      return;
+    }
+
+    timeSelect.innerHTML = '<option value="" disabled selected>Select a time...</option>';
+    slots.forEach(s => {
+      const opt       = document.createElement('option');
+      opt.value       = s.label;
+      opt.textContent = s.label;
+      timeSelect.appendChild(opt);
+    });
+  });
+</script>
+{% endblock %}

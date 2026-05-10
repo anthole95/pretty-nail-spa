@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact — Pretty Nail Spa{% endblock %}
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>Get in Touch</h2>
+    <p>Have a question or want to know more? We'd love to hear from you.</p>
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="flash-success">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="form-centered">
+    <form action="/contact" method="POST" class="contact-form">
+
+      <div class="form-group">
+        <label for="customer_name">Full Name</label>
+        <input type="text" id="customer_name" name="customer_name"
+               placeholder="Jane Smith" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email"
+               placeholder="jane@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone"
+               placeholder="(555) 123-4567">
+      </div>
+
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="5"
+                  placeholder="Tell us how we can help..." required></textarea>
+      </div>
+
+      <button type="submit" class="btn">Send Message</button>
+
+    </form>
+  </div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+  // ── Phone number live formatting ──
+  const phoneInput = document.getElementById('phone');
+
+  phoneInput.addEventListener('input', function () {
+    let digits = this.value.replace(/\D/g, '');
+    if (digits.length > 10) digits = digits.slice(0, 10);
+
+    let formatted = '';
+    if (digits.length === 0) {
+      formatted = '';
+    } else if (digits.length <= 3) {
+      formatted = `(${digits}`;
+    } else if (digits.length <= 6) {
+      formatted = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+    } else {
+      formatted = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+    }
+
+    this.value = formatted;
+  });
+</script>
+{% endblock %}

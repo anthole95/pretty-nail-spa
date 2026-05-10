@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}About — Pretty Nail Spa{% endblock %}
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>About Us</h2>
+    <p>Get to know the family behind the spa.</p>
+  </div>
+
+  <!-- Story section -->
+  <div class="about-section">
+    <div class="about-text">
+      <h3>Our Story</h3>
+      <p>Pretty Nail Spa was founded with a simple belief — every person deserves to feel pampered, confident, and cared for. What started as a dream has grown into a welcoming space where clients become family.</p>
+      <p>Located in the heart of Brighton, CO, we've been serving our community with dedication, creativity, and a whole lot of love. From classic manicures to intricate nail art, every service is performed with attention to detail and a commitment to quality.</p>
+    </div>
+    <!--
+    <div class="about-image placeholder-image">
+      <span>Salon photo coming soon</span>
+    </div>
+    -->
+    <img src="{{ url_for('static', filename='images/sunny10.jpg') }}" 
+     alt="Pretty Nail Spa" 
+     class="about-image-real">
+  </div>
+
+  <!-- Values section -->
+  <div class="values-section">
+    <h3>What We Stand For</h3>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">✦</div>
+        <h4>Quality</h4>
+        <p>We use only premium products and take the time to do every service right — no rushing, no shortcuts.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">✦</div>
+        <h4>Cleanliness</h4>
+        <p>Our tools are sterilized before every client. Your health and safety are our top priority.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">✦</div>
+        <h4>Community</h4>
+        <p>We're a family-owned business proud to be part of the Brighton community. Every visit supports a local dream.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">✦</div>
+        <h4>Creativity</h4>
+        <p>From timeless classics to bold nail art, our technicians love bringing your vision to life.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team section -->
+  <div class="team-section">
+    <h3>Meet the Team</h3>
+    <div class="team-grid">
+      <div class="team-card">
+        <!--<div class="team-photo placeholder-image"><span>Photo</span></div>-->
+        <img src="{{ url_for('static', filename='images/team/sunny11.jpg') }}" 
+        alt="Technician Name" 
+        class="team-photo-real">
+        <!--<h4>Technician Name</h4>-->
+        <h4>Sunny</h4>
+        <p class="team-role">Nail Technician</p>
+        <p>Specializes in devouring food and treats like a gremlin.</p>
+      </div>
+      <div class="team-card">
+        <!--<div class="team-photo placeholder-image"><span>Photo</span></div>-->
+        <img src="{{ url_for('static', filename='images/team/sunny12.jpg') }}" 
+        alt="Technician Name" 
+        class="team-photo-real">
+        <h4>Sunnert</h4>
+        <p class="team-role">Nail Technician</p>
+        <p>Known for visciously playing with lambchops and squeakers</p>
+      </div>
+      <div class="team-card">
+        <!--<div class="team-photo placeholder-image"><span>Photo</span></div>-->
+        <img src="{{ url_for('static', filename='images/team/sunny13.jpg') }}" 
+        alt="Technician Name" 
+        class="team-photo-real">
+        <h4>Sunnathon</h4>
+        <p class="team-role">Nail Technician</p>
+        <p>Passionate about making a mess of dirt on every walk.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-cta">
+    <p>Ready to experience it for yourself?</p>
+    <a href="/booking" class="btn">Book an Appointment</a>
+  </div>
+
+{% endblock %}

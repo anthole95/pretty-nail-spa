@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Gallery — Pretty Nail Spa{% endblock %}
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>Our Work</h2>
+    <p>Browse our portfolio — click any photo to view it larger.</p>
+  </div>
+
+  <div class="gallery-grid">
+    {% for photo in gallery %}
+      <div class="gallery-item" onclick="openLightbox('{{ photo.filename }}', '{{ photo.caption }}')">
+        <img src="{{ photo.filename }}" alt="{{ photo.caption }}">
+        <div class="gallery-overlay">
+          <span class="gallery-caption">{{ photo.caption }}</span>
+          <span class="gallery-category">{{ photo.category }}</span>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Lightbox overlay -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <img id="lightbox-img" src="" alt="">
+      <p id="lightbox-caption"></p>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+  function openLightbox(src, caption) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-caption').textContent = caption;
+    document.getElementById('lightbox').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Close lightbox with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+  });
+</script>
+{% endblock %}

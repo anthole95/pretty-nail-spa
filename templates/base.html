@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Pretty Nail Spa{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+  <body>
+    <header>
+      <h1>Pretty Nail Spa</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/about-us">About Us</a>
+        <a href="/services">Services</a>
+        <a href="/gallery">Gallery</a>
+        <a href="/contact">Contact</a>
+        <a href="/booking">Book an Appointment</a>
+      </nav>
+    </header>
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+<footer>
+  <div class="footer-grid">
+
+    <div class="footer-col">
+      <h4>Pretty Nail Spa</h4>
+      <p>A family-owned salon dedicated to making you feel beautiful, one nail at a time.</p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Visit Us</h4>
+      <p>245 Pavilions Pl B<br>Brighton, CO 80601</p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Hours</h4>
+      <p>
+        Monday: Closed<br>
+        Tue – Fri: 10:00 am – 7:00 pm<br>
+        Saturday: 10:00 am – 6:00 pm<br>
+        Sunday: 11:00 am – 4:30 pm
+      </p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <p>
+        (303) 659-0863<br>
+        PLACE@HOLDER.COM
+      </p>
+    </div>
+
+  </div>
+  <div class="footer-bottom">
+    <p>Pretty Nail Spa &copy; 2011 · 245 Pavilions Pl B, Brighton, CO 80601</p>
+  </div>
+</footer>
+
+    {% block scripts %}{% endblock %}
+    
+  </body>
+</html>

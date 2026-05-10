@@ -1,0 +1,795 @@
+/* ── Variables ── */
+:root {
+    --primary: #6b7fa3;
+    --primary-light: #dce3ef;
+    --primary-dark: #4a5c7a;
+    --accent: #c9b8b8;
+    --background: #e8e3dc;
+    --dark: #3a3a3a;
+    --gray: #7a7a7a;
+    --light-gray: #f0ece7;
+    --white: #ffffff;
+    --font-main: 'Georgia', serif;
+    --font-body: 'Arial', sans-serif;
+}
+
+/* ── Reset & base ── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    color: var(--dark);
+    background-color: var(--background);
+    line-height: 1.6;
+}
+
+/* ── Header & navigation ── */
+header {
+    background-color: var(--white);
+    border-bottom: 2px solid var(--primary-light);
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header h1 {
+    font-family: var(--font-main);
+    color: var(--primary);
+    font-size: 28px;
+    letter-spacing: 1px;
+}
+
+nav {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--gray);
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+nav a:hover {
+    color: var(--primary);
+}
+
+/* ── Book Now nav button ── */
+.nav-book {
+    background-color: var(--primary);
+    color: var(--white) !important;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    transition: background-color 0.2s !important;
+}
+
+.nav-book:hover {
+    background-color: var(--primary-dark) !important;
+    color: var(--white) !important;
+}
+
+/* ── Main content area ── */
+main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 60px 40px;
+}
+
+/* ── Page header (used on interior pages) ── */
+.page-header {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--primary-light);
+}
+
+.page-header h2 {
+    font-family: var(--font-main);
+    font-size: 36px;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+.page-header p {
+    color: var(--gray);
+    font-size: 16px;
+}
+
+/* ── Hero section (homepage) ── */
+.hero {
+    text-align: center;
+    padding: 80px 20px;
+    background-color: var(--primary-light);
+    border-radius: 12px;
+    margin-bottom: 60px;
+}
+
+.hero h2 {
+    font-family: var(--font-main);
+    font-size: 42px;
+    color: var(--primary);
+    margin-bottom: 16px;
+}
+
+.hero p {
+    font-size: 18px;
+    color: var(--gray);
+    margin-bottom: 12px;
+}
+
+/* ── Buttons ── */
+.btn {
+    display: inline-block;
+    background-color: var(--primary);
+    color: var(--white);
+    text-decoration: none;
+    padding: 14px 32px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn:hover {
+    background-color: var(--primary-dark);
+}
+
+/* ── Flash message ── */
+.flash-success {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ── Forms (shared across contact & booking) ── */
+.form-centered {
+    max-width: 600px;
+    margin: 0 auto;
+    background: var(--white);
+    border-radius: 12px;
+    padding: 36px;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dark);
+    letter-spacing: 0.03em;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: var(--font-body);
+    color: var(--dark);
+    background: var(--background);
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: var(--primary);
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+/* ── Select dropdowns ── */
+.form-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7fa3' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+
+/* ── Date + time side by side ── */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* ── Optional label ── */
+.optional {
+    font-weight: 400;
+    color: var(--gray);
+    font-size: 12px;
+}
+
+/* ── Closed day message ── */
+.closed-message {
+    font-size: 13px;
+    color: #b04040;
+    margin-top: 4px;
+}
+
+/* ── Party size radio options ── */
+.party-options {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.party-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--background);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--dark);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.party-option:has(input:checked) {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.party-option input {
+    display: none;
+}
+
+/* ── Services checklist ── */
+.services-checklist {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--background);
+}
+
+.checklist-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.checklist-section:last-child {
+    border-bottom: none;
+}
+
+.checklist-category {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.checkbox-option input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.checkbox-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+}
+
+.checkbox-price {
+    font-size: 13px;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* ── Services price list ── */
+.services-sections {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    margin-bottom: 48px;
+}
+
+.service-section {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 28px 32px;
+}
+
+.section-title {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--primary-light);
+}
+
+.section-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.service-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.service-name {
+    font-size: 14px;
+    color: var(--dark);
+    white-space: nowrap;
+}
+
+.service-divider {
+    flex: 1;
+    border-bottom: 1px dotted var(--accent);
+    margin-bottom: 4px;
+}
+
+.service-price {
+    font-size: 14px;
+    color: var(--primary);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.services-note {
+    text-align: center;
+    color: var(--gray);
+    font-size: 14px;
+    margin-bottom: 16px;
+    letter-spacing: 0.05em;
+}
+
+/* ── Gallery grid ── */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.gallery-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    aspect-ratio: 3/2;
+    background: var(--light-gray);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
+}
+
+.gallery-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.65));
+    color: white;
+    padding: 20px 14px 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.gallery-item:hover .gallery-overlay {
+    opacity: 1;
+}
+
+.gallery-caption {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.gallery-category {
+    font-size: 12px;
+    opacity: 0.8;
+    background: var(--primary);
+    padding: 2px 8px;
+    border-radius: 20px;
+    width: fit-content;
+}
+
+/* ── Lightbox ── */
+.lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox.active {
+    display: flex;
+}
+
+.lightbox-content {
+    max-width: 800px;
+    width: 90%;
+    text-align: center;
+}
+
+.lightbox-content img {
+    width: 100%;
+    border-radius: 12px;
+    display: block;
+}
+
+.lightbox-content p {
+    color: white;
+    margin-top: 14px;
+    font-size: 16px;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 28px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.lightbox-close:hover {
+    color: var(--primary);
+}
+
+/* ── About page ── */
+.about-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    margin-bottom: 64px;
+}
+
+.about-text h3 {
+    font-family: var(--font-main);
+    font-size: 26px;
+    color: var(--primary);
+    margin-bottom: 16px;
+}
+
+.about-text p {
+    color: var(--gray);
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: 12px;
+}
+
+.placeholder-image {
+    background: var(--primary-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+}
+
+.about-image.placeholder-image {
+    height: 300px;
+}
+
+.values-section {
+    margin-bottom: 64px;
+}
+
+.values-section h3,
+.team-section h3 {
+    font-family: var(--font-main);
+    font-size: 26px;
+    color: var(--primary);
+    margin-bottom: 28px;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.value-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+}
+
+.value-icon {
+    font-size: 20px;
+    color: var(--primary);
+    margin-bottom: 12px;
+}
+
+.value-card h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 8px;
+}
+
+.value-card p {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.7;
+}
+
+.team-section {
+    margin-bottom: 64px;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.team-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 28px 24px;
+    text-align: center;
+}
+
+.team-photo.placeholder-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    font-size: 12px;
+}
+
+.team-card h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 4px;
+}
+
+.team-role {
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 10px !important;
+}
+
+.team-card p {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.7;
+}
+
+.about-cta {
+    text-align: center;
+    padding: 48px 0;
+    border-top: 1px solid var(--primary-light);
+}
+
+.about-cta p {
+    font-family: var(--font-main);
+    font-size: 22px;
+    color: var(--dark);
+    margin-bottom: 20px;
+}
+
+/* ── Footer ── */
+footer {
+    background-color: var(--dark);
+    color: #ccc;
+    margin-top: 80px;
+}
+
+.footer-grid {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 48px 40px 32px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+}
+
+.footer-col h4 {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 12px;
+}
+
+.footer-col p {
+    font-size: 13px;
+    line-height: 1.8;
+    color: #aaa;
+}
+
+.footer-bottom {
+    border-top: 1px solid #444;
+    text-align: center;
+    padding: 16px 40px;
+}
+
+.footer-bottom p {
+    font-size: 12px;
+    color: #777;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .about-section {
+        grid-template-columns: 1fr;
+    }
+
+    .values-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .services-sections {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+        padding: 20px;
+    }
+
+    nav {
+        gap: 16px;
+    }
+
+    .hero h2 {
+        font-size: 28px;
+    }
+
+    main {
+        padding: 40px 20px;
+    }
+
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.about-image-real {
+    width: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    height: 300px;
+}
+
+.team-photo-real {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 16px;
+    display: block;
+}
+
+.pedicure-note {
+    font-size: 13px;
+    color: var(--primary);
+    margin-top: 6px;
+    font-style: italic;
+}
+
+/* ── Booking total summary ── */
+.total-summary {
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    padding: 16px 20px;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.total-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+.total-amount {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.total-note {
+    font-size: 12px;
+    color: var(--gray);
+    font-style: italic;
+}
