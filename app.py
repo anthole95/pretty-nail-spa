@@ -2,54 +2,60 @@ from flask import Flask, render_template, request, flash, redirect, url_for, ses
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from functools import wraps
 import re
 import os
 import resend
 
+# ── App initialisation ──
 app = Flask(__name__)
+
+# Secret key signs Flask session cookies (flash messages, admin login state).
+# Loaded from Render environment variable in production; falls back for local dev.
 app.secret_key = os.environ.get('SECRET_KEY')
+
+# Resend API key for email notifications — stored in Render environment variables.
 resend.api_key = os.environ.get('RESEND_API_KEY')
 
 # ── Database configuration ──
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
 
-# Render provides postgres:// but SQLAlchemy requires postgresql://
 if database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+# Suppress deprecation warning
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# ── Mountain Time helper ──
+# ── Time Zone Helper ──
+
 def mountain_time():
     return datetime.now(ZoneInfo('America/Denver'))
 
 # ── Models (database tables) ──
-
 class Appointment(db.Model):
-    id         = db.Column(db.Integer, primary_key=True)
-    name       = db.Column(db.String(100), nullable=False)
-    email      = db.Column(db.String(120), nullable=False)
-    phone      = db.Column(db.String(20),  nullable=False)
-    services   = db.Column(db.Text,        nullable=False)
-    party_size = db.Column(db.Integer,     nullable=False, default=1)
-    estimated_total = db.Column(db.String(20),   nullable=True)
-    date       = db.Column(db.String(20),  nullable=False)
-    time       = db.Column(db.String(20),  nullable=False)
-    technician = db.Column(db.String(100), nullable=True)
-    details    = db.Column(db.Text,        nullable=True)
-    created_at = db.Column(db.DateTime,    default=mountain_time)
+    id              = db.Column(db.Integer,     primary_key=True)          # Auto-incrementing unique ID
+    name            = db.Column(db.String(100), nullable=False)            # Customer full name
+    email           = db.Column(db.String(120), nullable=False)            # Customer email
+    phone           = db.Column(db.String(20),  nullable=False)            # Normalised to (XXX) XXX-XXXX
+    services        = db.Column(db.Text,        nullable=False)            # Comma-separated list of selected services
+    party_size      = db.Column(db.Integer,     nullable=False, default=1) # Number of people
+    estimated_total = db.Column(db.String(20),  nullable=True)             # e.g. "$55+" — calculated on frontend
+    date            = db.Column(db.String(20),  nullable=False)            # Preferred appointment date
+    time            = db.Column(db.String(20),  nullable=False)            # Preferred appointment time
+    technician      = db.Column(db.String(100), nullable=True)             # Preferred technician (optional)
+    details         = db.Column(db.Text,        nullable=True)             # Any additional notes (optional)
+    created_at      = db.Column(db.DateTime,    default=mountain_time)     # Submission timestamp in MT
 
     def __repr__(self):
         return f'<Appointment {self.name} on {self.date} at {self.time}>'
-
 
 class ContactMessage(db.Model):
     id         = db.Column(db.Integer, primary_key=True)
     name       = db.Column(db.String(100), nullable=False)
     email      = db.Column(db.String(120), nullable=False)
-    phone      = db.Column(db.String(20),  nullable=True)
+    phone      = db.Column(db.String(20),  nullable=False)
     message    = db.Column(db.Text,        nullable=False)
     created_at = db.Column(db.DateTime,    default=mountain_time)
 
@@ -57,114 +63,110 @@ class ContactMessage(db.Model):
         return f'<Message from {self.name}>'
     
 # ── Services data ── 
-# Edit this list to update pricing of services on website
 # TO-DO: Add more services from other menu
 services = [
     {
         'category': 'Manicure Services',
         'services': [
-            { 'name': 'Basic Manicure',                 'price': '25',  'price_note': '' },
-            { 'name': 'Luxury Manicure',                'price': '40',  'price_note': '' },
-            { 'name': 'Gel Polish Manicure',            'price': '35',  'price_note': '' },
-            { 'name': 'Gel French Manicure',            'price': '40',  'price_note': '' },
+            { 'name': 'Basic Manicure',                       'price': '25', 'price_note': '' },
+            { 'name': 'Luxury Manicure',                      'price': '40', 'price_note': '' },
+            { 'name': 'Gel Polish Manicure',                  'price': '35', 'price_note': '' },
+            { 'name': 'Gel French Manicure',                  'price': '40', 'price_note': '' },
         ]
     },
     {
         'category': 'Pedicure Services',
         'services': [
-            { 'name': 'Basic Pedicure',                 'price': '35',  'price_note': '' },
-            { 'name': 'Signature Pedicure',             'price': '45',  'price_note': '' },
-            { 'name': 'Deluxe Pedicure',                'price': '50',  'price_note': '' },
-            { 'name': 'Luxury Pedicure',                'price': '60',  'price_note': '' },
+            { 'name': 'Basic Pedicure',                       'price': '35', 'price_note': '' },
+            { 'name': 'Signature Pedicure',                   'price': '45', 'price_note': '' },
+            { 'name': 'Deluxe Pedicure',                      'price': '50', 'price_note': '' },
+            { 'name': 'Luxury Pedicure',                      'price': '60', 'price_note': '' },
         ]
     },
     {
         'category': 'Manicure & Pedicure Combos',
         'services': [
-            { 'name': 'Basic Manicure-Pedicure',        'price': '55',  'price_note': '' },
-            { 'name': 'Signature Manicure-Pedicure',    'price': '70',  'price_note': '' },
-            { 'name': 'Deluxe Manicure-Pedicure',       'price': '80',  'price_note': '' },
+            { 'name': 'Basic Manicure-Pedicure',              'price': '55', 'price_note': '' },
+            { 'name': 'Signature Manicure-Pedicure',          'price': '70', 'price_note': '' },
+            { 'name': 'Deluxe Manicure-Pedicure',             'price': '80', 'price_note': '' },
         ]
     },
     {
         'category': 'Dipping Services',
         'services': [
-            { 'name': 'Dipping Color',                  'price': '45',  'price_note': '+' },
-            { 'name': 'Dipping Color Add Tip',          'price': '55',  'price_note': '+' },
-            { 'name': 'Dipping French',                 'price': '50',  'price_note': '+' },
-            { 'name': 'Dipping French Add Tip',         'price': '55',  'price_note': '+' },
+            { 'name': 'Dipping Color',                        'price': '45', 'price_note': '+' },
+            { 'name': 'Dipping Color Add Tip',                'price': '55', 'price_note': '+' },
+            { 'name': 'Dipping French',                       'price': '50', 'price_note': '+' },
+            { 'name': 'Dipping French Add Tip',               'price': '55', 'price_note': '+' },
         ]
     },
     {
         'category': 'Nail Enhancement — Acrylic',
         'services': [
-            { 'name': 'Full Set with Gel Color',        'price': '55',  'price_note': '+' },
-            { 'name': 'Fill Set with French Tip',       'price': '60',  'price_note': '+' },
-            { 'name': 'Fill-In No Polish',              'price': '35',  'price_note': '+' },
-            { 'name': 'Fill-In with French Tip',        'price': '50',  'price_note': '+' },
-            { 'name': 'Fill-In with Gel Color',         'price': '45',  'price_note': '+' },
+            { 'name': 'Full Set with Gel Color',              'price': '55', 'price_note': '+' },
+            { 'name': 'Fill Set with French Tip',             'price': '60', 'price_note': '+' },
+            { 'name': 'Fill-In No Polish',                    'price': '35', 'price_note': '+' },
+            { 'name': 'Fill-In with French Tip',              'price': '50', 'price_note': '+' },
+            { 'name': 'Fill-In with Gel Color',               'price': '45', 'price_note': '+' },
         ]
     },
     {
         'category': 'Nail Enhancement — Pink & White / Poly Gel',
         'services': [
-            { 'name': 'Pink & White Full Set',          'price': '60',  'price_note': '+' },
-            { 'name': 'Pink & White Fill-In',           'price': '55',  'price_note': '+' },
-            { 'name': 'Poly Gel Full Set',              'price': '55',  'price_note': '+' },
-            { 'name': 'Poly Gel Fill-In with Color',    'price': '45',  'price_note': '+' },
-            { 'name': 'Poly Gel Fill-In with French Tip', 'price': '50', 'price_note': '+' },
+            { 'name': 'Pink & White Full Set',                'price': '60', 'price_note': '+' },
+            { 'name': 'Pink & White Fill-In',                 'price': '55', 'price_note': '+' },
+            { 'name': 'Poly Gel Full Set',                    'price': '55', 'price_note': '+' },
+            { 'name': 'Poly Gel Fill-In with Color',          'price': '45', 'price_note': '+' },
+            { 'name': 'Poly Gel Fill-In with French Tip',     'price': '50', 'price_note': '+' },
         ]
     },
     {
         'category': 'Nail Enhancement — Ombre & Builder Gel',
         'services': [
-            { 'name': 'Ombre Full Set',                 'price': '70',  'price_note': '+' },
-            { 'name': 'Ombre Fill-In',                  'price': '70',  'price_note': '+' },
-            { 'name': 'Builder Gel Full Set',           'price': '60',  'price_note': '+' },
-            { 'name': 'Builder Gel Fill-In',            'price': '55',  'price_note': '+' },
+            { 'name': 'Ombre Full Set',                       'price': '70', 'price_note': '+' },
+            { 'name': 'Ombre Fill-In',                        'price': '70', 'price_note': '+' },
+            { 'name': 'Builder Gel Full Set',                 'price': '60', 'price_note': '+' },
+            { 'name': 'Builder Gel Fill-In',                  'price': '55', 'price_note': '+' },
         ]
     },
     {
         'category': 'Polish Change',
         'services': [
-            { 'name': 'Regular Polish Change',          'price': '15',  'price_note': '' },
-            { 'name': 'Gel Color Change',               'price': '25',  'price_note': '' },
-            { 'name': 'Gel French Tip Change',          'price': '30',  'price_note': '' },
+            { 'name': 'Regular Polish Change',                'price': '15', 'price_note': '' },
+            { 'name': 'Gel Color Change',                     'price': '25', 'price_note': '' },
+            { 'name': 'Gel French Tip Change',                'price': '30', 'price_note': '' },
         ]
     },
     {
         'category': 'Add-On Services',
         'services': [
-            { 'name': 'Cat Eyes',                       'price': '10',  'price_note': '' },
-            { 'name': 'Chrome',                         'price': '15',  'price_note': '+' },
-            { 'name': 'Design',                         'price': '10',  'price_note': '+' },
-            { 'name': 'Soak-Off Without Service',       'price': '25',  'price_note': '+' },
+            { 'name': 'Cat Eyes',                             'price': '10', 'price_note': '' },
+            { 'name': 'Chrome',                               'price': '15', 'price_note': '+' },
+            { 'name': 'Design',                               'price': '10', 'price_note': '+' },
+            { 'name': 'Soak-Off Without Service',             'price': '25', 'price_note': '+' },
         ]
     },
     {
         'category': 'Kid Services (Ages 10 & Under)',
         'services': [
-            { 'name': 'Kids Regular Manicure',          'price': '15',  'price_note': '' },
-            { 'name': 'Kids Gel Manicure',              'price': '25',  'price_note': '' },
-            { 'name': 'Kids Polish Hands & Toes',       'price': '15',  'price_note': '' },
+            { 'name': 'Kids Regular Manicure',                'price': '15', 'price_note': '' },
+            { 'name': 'Kids Gel Manicure',                    'price': '25', 'price_note': '' },
+            { 'name': 'Kids Polish Hands & Toes',             'price': '15', 'price_note': '' },
         ]
     },
     {
         'category': 'Waxing Services',
         'services': [
-            { 'name': 'Eyebrows',                       'price': '15',  'price_note': '' },
-            { 'name': 'Lip',                            'price': '8',   'price_note': '' },
-            { 'name': 'Chin',                           'price': '10',  'price_note': '' },
-            { 'name': 'Full Face',                      'price': '35',  'price_note': '' },
+            { 'name': 'Eyebrows',                             'price': '15', 'price_note': '' },
+            { 'name': 'Lip',                                  'price': '8',  'price_note': '' },
+            { 'name': 'Chin',                                 'price': '10', 'price_note': '' },
+            { 'name': 'Full Face',                            'price': '35', 'price_note': '' },
         ]
     },
 ]
 
-# Flat list of service names for the booking form dropdown
-service_names = [item['name'] for section in services for item in section['services']]
 
 # ── Gallery data ── 
-# Update this with pictures for viewing in the gallery
 # TO-DO: Replace placeholders with real imagery
 gallery = [
     {
@@ -223,19 +225,19 @@ def normalize_phone(raw):
     if len(digits) == 10:
         return f'({digits[:3]}) {digits[3:6]}-{digits[6:]}'
     elif len(digits) == 11 and digits[0] == '1':
+        # Handle numbers entered with leading country code (e.g. 13036590863)
         return f'({digits[1:4]}) {digits[4:7]}-{digits[7:]}'
-    else:
-        return None  # invalid — not 10 digits
+    return None  # Not a valid US number
     
 def send_notification(subject, body):
     try:
         notify_email = os.environ.get('NOTIFY_EMAIL')
         if notify_email:
             resend.Emails.send({
-                'from': 'Pretty Nail Spa <onboarding@resend.dev>',
-                'to': notify_email,
+                'from':    'Pretty Nail Spa <onboarding@resend.dev>',
+                'to':      notify_email,
                 'subject': subject,
-                'text': body
+                'text':    body
             })
             print(f'Email notification sent to {notify_email}')
         else:
@@ -244,7 +246,6 @@ def send_notification(subject, body):
         print(f'Email notification failed: {e}')
     
 def admin_required(f):
-    from functools import wraps
     @wraps(f)
     def decorated(*args, **kwargs):
         if not session.get('admin_logged_in'):
@@ -277,7 +278,7 @@ def contact():
     if request.method == 'POST':
         raw_phone = request.form['phone'].strip()
 
-        # Only validate if they entered something
+        # Validate phone only if the customer entered one
         if raw_phone:
             phone = normalize_phone(raw_phone)
             if phone is None:
@@ -289,7 +290,7 @@ def contact():
         msg = ContactMessage(
             name    = request.form['customer_name'],
             email   = request.form['email'],
-            phone   = normalize_phone(request.form['phone']),
+            phone   = phone,  # Already validated/normalised above
             message = request.form['message']
         )
         db.session.add(msg)
@@ -312,19 +313,22 @@ Submitted: {msg.created_at.strftime('%b %d, %Y at %I:%M %p')} MT
 
         flash(f"Thank you {msg.name}! We'll be in touch soon.")
         return redirect(url_for('contact'))
+
     return render_template('contact.html')
+
 
 @app.route('/booking', methods=['GET', 'POST'])
 def booking():
     if request.method == 'POST':
-        selected_services = request.form.getlist('services')
 
+        # Validate at least one service was selected
+        selected_services = request.form.getlist('services')
         if not selected_services:
             flash('Please select at least one service.')
             return redirect(url_for('booking'))
 
+        # Validate phone — required on booking form
         phone = normalize_phone(request.form['phone'])
-
         if phone is None:
             flash('Please enter a valid 10-digit US phone number.')
             return redirect(url_for('booking'))
@@ -375,6 +379,8 @@ Submitted: {appt.created_at.strftime('%b %d, %Y at %I:%M %p')} MT
 
     return render_template('booking.html', services=services)
 
+# ── Admin Routes ──
+
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if session.get('admin_logged_in'):
@@ -384,10 +390,8 @@ def admin_login():
         username = request.form['username']
         password = request.form['password']
 
-        admin_user = os.environ.get('ADMIN_USERNAME', 'admin')
-        admin_pass = os.environ.get('ADMIN_PASSWORD', 'changeme')
-
-        if username == admin_user and password == admin_pass:
+        if username == os.environ.get('ADMIN_USERNAME', 'admin') and \
+           password == os.environ.get('ADMIN_PASSWORD', 'changeme'):
             session['admin_logged_in'] = True
             return redirect(url_for('admin_dashboard'))
         else:
@@ -452,7 +456,8 @@ def admin_cleanup():
     flash(f'Cleanup complete — {appt_count} appointment(s) and {msg_count} message(s) older than {days} days removed.')
     return redirect(url_for('admin_dashboard'))
 
-# Create tables on startup
+# ── Startup ──
+
 with app.app_context():
     db.create_all()
 
