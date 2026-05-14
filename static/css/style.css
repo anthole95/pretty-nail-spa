@@ -1,19 +1,46 @@
-/* ── Variables ── */
+/* ════════════════════════════════════════════════════════════════
+   Pretty Nail Spa — Stylesheet
+   Organised top to bottom:
+     1. Variables
+     2. Reset & base
+     3. Header & navigation
+     4. Main content area
+     5. Page header (interior pages)
+     6. Hero (homepage)
+     7. Buttons
+     8. Flash messages & field errors
+     9. Forms (shared)
+    10. Booking-specific (party size, checklist, total summary)
+    11. Services price list
+    12. Gallery & lightbox
+    13. About page
+    14. Footer
+    15. Admin (login + dashboard)
+    16. Responsive
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Variables ── */
 :root {
-    --primary: #6b7fa3;
-    --primary-light: #dce3ef;
-    --primary-dark: #4a5c7a;
-    --accent: #c9b8b8;
-    --background: #e8e3dc;
-    --dark: #3a3a3a;
-    --gray: #7a7a7a;
-    --light-gray: #f0ece7;
-    --white: #ffffff;
-    --font-main: 'Georgia', serif;
-    --font-body: 'Arial', sans-serif;
+    --primary:        #6b7fa3;
+    --primary-light:  #dce3ef;
+    --primary-dark:   #4a5c7a;
+    --accent:         #c9b8b8;
+    --background:     #e8e3dc;
+    --dark:           #3a3a3a;
+    --gray:           #7a7a7a;
+    --light-gray:     #f0ece7;
+    --white:          #ffffff;
+    --error:          #b04040;       /* used for field errors, delete buttons */
+    --error-light:    #fdecea;
+    --error-border:   #e8a0a0;
+    --font-main:      'Georgia', serif;
+    --font-body:      'Arial', sans-serif;
 }
 
-/* ── Reset & base ── */
+
+/* ── 2. Reset & base ──
+   Clears browser default margins/padding so styling starts
+   from a consistent baseline across all browsers. */
 * {
     margin: 0;
     padding: 0;
@@ -27,7 +54,8 @@ body {
     line-height: 1.6;
 }
 
-/* ── Header & navigation ── */
+
+/* ── 3. Header & navigation ── */
 header {
     background-color: var(--white);
     border-bottom: 2px solid var(--primary-light);
@@ -62,29 +90,31 @@ nav a:hover {
     color: var(--primary);
 }
 
-/* ── Book Now nav button ── */
+/* "Book Now" pill button in the nav */
 .nav-book {
     background-color: var(--primary);
-    color: var(--white) !important;
+    color: var(--white);
     padding: 8px 18px;
     border-radius: 20px;
     font-size: 14px;
-    transition: background-color 0.2s !important;
+    transition: background-color 0.2s;
 }
 
 .nav-book:hover {
-    background-color: var(--primary-dark) !important;
-    color: var(--white) !important;
+    background-color: var(--primary-dark);
+    color: var(--white);
 }
 
-/* ── Main content area ── */
+
+/* ── 4. Main content area ── */
 main {
     max-width: 1000px;
     margin: 0 auto;
     padding: 60px 40px;
 }
 
-/* ── Page header (used on interior pages) ── */
+
+/* ── 5. Page header (used on all interior pages) ── */
 .page-header {
     margin-bottom: 40px;
     padding-bottom: 20px;
@@ -103,7 +133,8 @@ main {
     font-size: 16px;
 }
 
-/* ── Hero section (homepage) ── */
+
+/* ── 6. Hero section (homepage only) ── */
 .hero {
     text-align: center;
     padding: 80px 20px;
@@ -125,7 +156,10 @@ main {
     margin-bottom: 12px;
 }
 
-/* ── Buttons ── */
+
+/* ── 7. Buttons ── */
+
+/* Primary filled button — used for main CTAs */
 .btn {
     display: inline-block;
     background-color: var(--primary);
@@ -145,7 +179,29 @@ main {
     background-color: var(--primary-dark);
 }
 
-/* ── Flash message ── */
+/* Outline variant — used alongside primary button (e.g. homepage) */
+.btn-outline {
+    background-color: var(--white);
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    margin-left: 12px;
+}
+
+.btn-outline:hover {
+    background-color: var(--primary-light);
+}
+
+/* Full-width variant — used in admin login */
+.btn-full {
+    width: 100%;
+    text-align: center;
+    margin-top: 8px;
+}
+
+
+/* ── 8. Flash messages & field errors ── */
+
+/* Success/info flash — booking confirmation, contact success, admin actions */
 .flash-success {
     background: var(--primary-light);
     color: var(--primary-dark);
@@ -157,7 +213,28 @@ main {
     font-weight: 500;
 }
 
-/* ── Forms (shared across contact & booking) ── */
+/* Error flash — used on admin login failure */
+.flash-error {
+    background: var(--error-light);
+    color: var(--error);
+    border: 1px solid var(--error-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+/* Inline field error — shown below phone input on invalid entry */
+.field-error {
+    font-size: 12px;
+    color: var(--error);
+    margin-top: 4px;
+}
+
+
+/* ── 9. Forms (shared across contact, booking, admin login) ── */
+
+/* White card wrapper that centres and contains the form */
 .form-centered {
     max-width: 600px;
     margin: 0 auto;
@@ -166,6 +243,7 @@ main {
     padding: 36px;
 }
 
+/* Vertical stack layout for all form fields */
 .contact-form {
     display: flex;
     flex-direction: column;
@@ -185,6 +263,7 @@ main {
     letter-spacing: 0.03em;
 }
 
+/* Shared input styles across text, email, tel, textarea, select */
 .form-group input,
 .form-group textarea,
 .form-group select {
@@ -209,7 +288,7 @@ main {
     resize: vertical;
 }
 
-/* ── Select dropdowns ── */
+/* Custom dropdown arrow for select elements */
 .form-group select {
     cursor: pointer;
     appearance: none;
@@ -218,28 +297,31 @@ main {
     background-position: right 14px center;
 }
 
-/* ── Date + time side by side ── */
+/* Date and time inputs displayed side by side */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
 }
 
-/* ── Optional label ── */
+/* Muted label for optional fields */
 .optional {
     font-weight: 400;
     color: var(--gray);
     font-size: 12px;
 }
 
-/* ── Closed day message ── */
+/* Red message shown below time select when Monday is chosen */
 .closed-message {
     font-size: 13px;
-    color: #b04040;
+    color: var(--error);
     margin-top: 4px;
 }
 
-/* ── Party size radio options ── */
+
+/* ── 10. Booking-specific components ── */
+
+/* Party size — radio buttons styled as pill selectors */
 .party-options {
     display: flex;
     gap: 12px;
@@ -260,6 +342,7 @@ main {
     transition: border-color 0.2s, background 0.2s;
 }
 
+/* Highlight the selected party size option */
 .party-option:has(input:checked) {
     border-color: var(--primary);
     background: var(--primary-light);
@@ -267,11 +350,12 @@ main {
     font-weight: 500;
 }
 
+/* Hide the actual radio input — the label acts as the button */
 .party-option input {
     display: none;
 }
 
-/* ── Services checklist ── */
+/* Services checklist — grouped by category */
 .services-checklist {
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -288,6 +372,7 @@ main {
     border-bottom: none;
 }
 
+/* Category heading inside the checklist */
 .checklist-category {
     font-size: 10px;
     font-weight: 600;
@@ -297,6 +382,7 @@ main {
     margin-bottom: 10px;
 }
 
+/* Each service row with checkbox */
 .checkbox-option {
     display: flex;
     align-items: center;
@@ -314,6 +400,7 @@ main {
     flex-shrink: 0;
 }
 
+/* Service name on left, price on right */
 .checkbox-label {
     display: flex;
     justify-content: space-between;
@@ -327,7 +414,43 @@ main {
     font-weight: 600;
 }
 
-/* ── Services price list ── */
+/* Running total card — appears when at least one service is checked */
+.total-summary {
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    padding: 16px 20px;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.total-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+.total-amount {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.total-note {
+    font-size: 12px;
+    color: var(--gray);
+    font-style: italic;
+}
+
+
+/* ── 11. Services price list ── */
+
+/* Two-column grid of service category cards */
 .services-sections {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -341,6 +464,7 @@ main {
     padding: 28px 32px;
 }
 
+/* Uppercase category heading inside each card */
 .section-title {
     font-family: var(--font-body);
     font-size: 11px;
@@ -359,6 +483,7 @@ main {
     gap: 12px;
 }
 
+/* Each service row: name .... price */
 .service-row {
     display: flex;
     align-items: baseline;
@@ -371,6 +496,7 @@ main {
     white-space: nowrap;
 }
 
+/* Dotted line stretching between name and price */
 .service-divider {
     flex: 1;
     border-bottom: 1px dotted var(--accent);
@@ -384,6 +510,15 @@ main {
     white-space: nowrap;
 }
 
+/* Add-on note shown below pedicure heading */
+.pedicure-note {
+    font-size: 13px;
+    color: var(--primary);
+    margin-top: 6px;
+    font-style: italic;
+}
+
+/* CTA line at the bottom of the price list */
 .services-note {
     text-align: center;
     color: var(--gray);
@@ -392,7 +527,8 @@ main {
     letter-spacing: 0.05em;
 }
 
-/* ── Gallery grid ── */
+
+/* ── 12. Gallery & lightbox ── */
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -416,10 +552,12 @@ main {
     transition: transform 0.3s ease;
 }
 
+/* Subtle zoom on hover */
 .gallery-item:hover img {
     transform: scale(1.05);
 }
 
+/* Dark gradient overlay with caption — hidden until hover */
 .gallery-overlay {
     position: absolute;
     bottom: 0;
@@ -453,7 +591,7 @@ main {
     width: fit-content;
 }
 
-/* ── Lightbox ── */
+/* Lightbox — full-screen overlay shown when a gallery image is clicked */
 .lightbox {
     display: none;
     position: fixed;
@@ -464,6 +602,7 @@ main {
     justify-content: center;
 }
 
+/* .active class is toggled by JavaScript to show/hide */
 .lightbox.active {
     display: flex;
 }
@@ -502,7 +641,10 @@ main {
     color: var(--primary);
 }
 
-/* ── About page ── */
+
+/* ── 13. About page ── */
+
+/* Two-column layout: story text left, salon photo right */
 .about-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -525,19 +667,12 @@ main {
     margin-bottom: 12px;
 }
 
-.placeholder-image {
-    background: var(--primary-light);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary);
-    font-size: 13px;
-    letter-spacing: 0.05em;
-}
-
-.about-image.placeholder-image {
+/* Salon photo in the story section */
+.about-image-real {
+    width: 100%;
     height: 300px;
+    border-radius: 12px;
+    object-fit: cover;
 }
 
 .values-section {
@@ -601,12 +736,14 @@ main {
     text-align: center;
 }
 
-.team-photo.placeholder-image {
+/* Circular team member photo */
+.team-photo-real {
     width: 100px;
     height: 100px;
     border-radius: 50%;
+    object-fit: cover;
     margin: 0 auto 16px;
-    font-size: 12px;
+    display: block;
 }
 
 .team-card h4 {
@@ -622,7 +759,7 @@ main {
     font-weight: 500;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    margin-bottom: 10px !important;
+    margin-bottom: 10px;
 }
 
 .team-card p {
@@ -631,6 +768,7 @@ main {
     line-height: 1.7;
 }
 
+/* CTA section at the bottom of the About page */
 .about-cta {
     text-align: center;
     padding: 48px 0;
@@ -644,13 +782,15 @@ main {
     margin-bottom: 20px;
 }
 
-/* ── Footer ── */
+
+/* ── 14. Footer ── */
 footer {
     background-color: var(--dark);
     color: #ccc;
     margin-top: 80px;
 }
 
+/* Four-column info grid */
 .footer-grid {
     max-width: 1000px;
     margin: 0 auto;
@@ -675,6 +815,7 @@ footer {
     color: #aaa;
 }
 
+/* Bottom strip with copyright */
 .footer-bottom {
     border-top: 1px solid #444;
     text-align: center;
@@ -686,115 +827,10 @@ footer {
     color: #777;
 }
 
-/* ── Responsive ── */
-@media (max-width: 700px) {
-    .footer-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
 
-    .about-section {
-        grid-template-columns: 1fr;
-    }
+/* ── 15. Admin ── */
 
-    .values-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .team-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .services-sections {
-        grid-template-columns: 1fr;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 600px) {
-    header {
-        flex-direction: column;
-        gap: 16px;
-        text-align: center;
-        padding: 20px;
-    }
-
-    nav {
-        gap: 16px;
-    }
-
-    .hero h2 {
-        font-size: 28px;
-    }
-
-    main {
-        padding: 40px 20px;
-    }
-
-    .gallery-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-.about-image-real {
-    width: 100%;
-    border-radius: 12px;
-    object-fit: cover;
-    height: 300px;
-}
-
-.team-photo-real {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin: 0 auto 16px;
-    display: block;
-}
-
-.pedicure-note {
-    font-size: 13px;
-    color: var(--primary);
-    margin-top: 6px;
-    font-style: italic;
-}
-
-/* ── Booking total summary ── */
-.total-summary {
-    background: var(--primary-light);
-    border: 1px solid var(--primary);
-    border-radius: 8px;
-    padding: 16px 20px;
-}
-
-.total-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-}
-
-.total-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--primary-dark);
-}
-
-.total-amount {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--primary-dark);
-}
-
-.total-note {
-    font-size: 12px;
-    color: var(--gray);
-    font-style: italic;
-}
-
-/* ── Admin login ── */
+/* Login page */
 .admin-login-wrapper {
     display: flex;
     justify-content: center;
@@ -822,17 +858,7 @@ footer {
     margin-bottom: 24px;
 }
 
-.flash-error {
-    background: #fdecea;
-    color: #b04040;
-    border: 1px solid #e8a0a0;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 20px;
-    font-size: 14px;
-}
-
-/* ── Admin dashboard ── */
+/* Dashboard header with logout button */
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -865,6 +891,7 @@ footer {
     color: var(--white);
 }
 
+/* Each data section (appointments / messages) */
 .admin-section {
     margin-bottom: 56px;
 }
@@ -882,6 +909,7 @@ footer {
     color: var(--dark);
 }
 
+/* Count badge next to section heading */
 .admin-count {
     font-size: 12px;
     background: var(--primary-light);
@@ -891,6 +919,7 @@ footer {
     font-weight: 500;
 }
 
+/* Scrollable table container */
 .admin-table-wrapper {
     overflow-x: auto;
     border-radius: 12px;
@@ -938,16 +967,18 @@ footer {
     vertical-align: top;
 }
 
-.td-date    { white-space: nowrap; color: var(--gray); }
-.td-name    { font-weight: 600; white-space: nowrap; }
-.td-phone   { white-space: nowrap; }
-.td-email   { color: var(--primary); }
-.td-total   { font-weight: 600; color: var(--primary); white-space: nowrap; }
-.td-time    { white-space: nowrap; }
-.td-tech    { white-space: nowrap; }
+/* Table cell styling by column type */
+.td-date     { white-space: nowrap; color: var(--gray); }
+.td-name     { font-weight: 600; white-space: nowrap; }
+.td-phone    { white-space: nowrap; }
+.td-email    { color: var(--primary); }
+.td-total    { font-weight: 600; color: var(--primary); white-space: nowrap; }
+.td-time     { white-space: nowrap; }
+.td-tech     { white-space: nowrap; }
 .td-services { min-width: 200px; }
 .td-message  { min-width: 250px; }
 .td-details  { min-width: 180px; color: var(--gray); }
+.td-action   { white-space: nowrap; }
 
 .admin-empty {
     color: var(--gray);
@@ -955,7 +986,7 @@ footer {
     padding: 20px 0;
 }
 
-/* ── Admin cleanup bar ── */
+/* Bulk cleanup bar at the top of the dashboard */
 .cleanup-bar {
     background: var(--white);
     border-radius: 12px;
@@ -1002,16 +1033,12 @@ footer {
     background: var(--primary-dark);
 }
 
-/* ── Admin delete button ── */
-.td-action {
-    white-space: nowrap;
-}
-
+/* Per-row delete button in the table */
 .btn-delete {
     font-size: 12px;
-    color: #b04040;
+    color: var(--error);
     text-decoration: none;
-    border: 1px solid #e8a0a0;
+    border: 1px solid var(--error-border);
     padding: 4px 10px;
     border-radius: 6px;
     transition: background 0.2s, color 0.2s;
@@ -1019,13 +1046,33 @@ footer {
 }
 
 .btn-delete:hover {
-    background: #b04040;
+    background: var(--error);
     color: var(--white);
 }
 
-/* ── Field error message ── */
-.field-error {
-    font-size: 12px;
-    color: #b04040;
-    margin-top: 4px;
+
+/* ── 16. Responsive ── */
+@media (max-width: 700px) {
+    .footer-grid        { grid-template-columns: repeat(2, 1fr); }
+    .about-section      { grid-template-columns: 1fr; }
+    .values-grid        { grid-template-columns: repeat(2, 1fr); }
+    .team-grid          { grid-template-columns: 1fr; }
+    .services-sections  { grid-template-columns: 1fr; }
+    .form-row           { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+        padding: 20px;
+    }
+
+    nav       { gap: 16px; }
+    main      { padding: 40px 20px; }
+
+    .hero h2  { font-size: 28px; }
+
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); }
 }
